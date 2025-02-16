@@ -91,7 +91,15 @@ class LexDMonkeyAI:
         return f"Opening WhatsApp Web to contact {self.whatsapp_number}."
     
     def listen_for_whatsapp_commands(self):
-        driver = webdriver.Firefox()
+        from selenium.webdriver.firefox.service import Service
+from selenium.webdriver.firefox.options import Options
+
+options = Options()
+options.binary_location = "/usr/bin/firefox"  # Ensure correct Firefox path
+
+service = Service("/usr/local/bin/geckodriver")
+driver = webdriver.Firefox(service=service, options=options)
+
         driver.get("https://web.whatsapp.com")
         input("Scan the QR code and press Enter...")
         while True:
