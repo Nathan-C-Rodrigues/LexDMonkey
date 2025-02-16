@@ -106,7 +106,17 @@ class LexDMonkeyAI:
         driver = webdriver.Firefox(service=service, options=options)
         
         driver.get("https://web.whatsapp.com")
-        input("Scan the QR code and press Enter...")
+print("Waiting for WhatsApp Web login...")
+
+# Wait until WhatsApp Web is fully loaded
+while True:
+    try:
+        if driver.find_element(By.XPATH, "//div[contains(@class, 'two')]"):  # Look for chat area
+            print("WhatsApp Web login detected!")
+            break
+    except:
+        pass
+    sleep(3)
         
         while True:
             try:
