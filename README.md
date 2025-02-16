@@ -1,6 +1,11 @@
 # LexDMonkey
 Lex D. Monkey [firmware developer based]
 
+#Enter Virtual Environment
+
+python3 -m venv lex_env
+source lex_env/bin/activate
+
 #Required System Packages
 
 sudo apt install -y python3 python3-pip python3-venv git curl wget \
