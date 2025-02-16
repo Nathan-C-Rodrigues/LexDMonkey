@@ -106,7 +106,8 @@ class LexDMonkeyAI:
         caps = DesiredCapabilities.FIREFOX.copy()
         caps["timeouts"] = {"implicit": 30, "pageLoad": 60, "script": 30}  # Adding timeouts
         
-        driver = webdriver.Firefox(service=service, options=options, desired_capabilities=caps)
+        options.set_capability("timeouts", {"implicit": 30, "pageLoad": 60, "script": 30})
+driver = webdriver.Firefox(service=service, options=options)
         driver.get("https://web.whatsapp.com")
         input("Scan the QR code and press Enter...")
 
