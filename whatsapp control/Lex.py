@@ -95,6 +95,7 @@ class LexDMonkeyAI:
     def listen_for_whatsapp_commands(self):
         options = Options()
         options.binary_location = "/usr/bin/firefox"  # Ensure correct Firefox path
+        options.headless = True
         service = Service(executable_path="/usr/local/bin/geckodriver")
         driver = webdriver.Firefox(service=service, options=options)
         driver.get("https://web.whatsapp.com")
