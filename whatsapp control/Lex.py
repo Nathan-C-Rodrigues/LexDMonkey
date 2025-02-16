@@ -106,33 +106,18 @@ class LexDMonkeyAI:
         driver = webdriver.Firefox(service=service, options=options)
         
         print("Opening WhatsApp Web...")
-driver.execute_script("window.location.href = 'https://web.whatsapp.com';")
-sleep(5)  # Give time for page to load
-print("Waiting for WhatsApp Web login...")
-print("Waiting for WhatsApp Web login...")
-
-# Wait until WhatsApp Web is fully loaded
-while True:
-    try:
-        if driver.find_element(By.XPATH, "//div[contains(@class, 'two')]"):  # Look for chat area
-            print("WhatsApp Web login detected!")
-            break
-    except:
-        pass
-    sleep(3)
+        driver.execute_script("window.location.href = 'https://web.whatsapp.com';")
+        sleep(5)  # Give time for page to load
+        print("Waiting for WhatsApp Web login...")
         
         while True:
             try:
-                chat = driver.find_element(By.XPATH, "//div[@class='_21Ahp']/div/span")
-                command = chat.text.lower().strip()
-                if command:
-                    response = self.process_command(command)
-                    chat_box = driver.find_element(By.XPATH, "//div[@title='Type a message']")
-                    chat_box.send_keys(response + Keys.ENTER)
-                    sleep(5)
-            except Exception as e:
-                print(f"Error reading WhatsApp message: {e}")
-            sleep(2)
+                if driver.find_element(By.XPATH, "//div[contains(@class, 'two')]"):
+                    print("WhatsApp Web login detected!")
+                    break
+            except:
+                pass
+            sleep(3)
 
     def process_command(self, command):
         if "listen" in command:
