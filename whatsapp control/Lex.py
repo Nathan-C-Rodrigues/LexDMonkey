@@ -97,10 +97,9 @@ class LexDMonkeyAI:
         return f"Opening WhatsApp Web to contact {self.whatsapp_number}."
 
     def listen_for_whatsapp_commands(self):
-        profile_path = "/home/nathan/.mozilla/firefox/ai"  # Replace with actual profile path
-        profile_path = "/home/nathan/snap/firefox/common/.mozilla/firefox/x2rpqcz2.default"  # Replace with actual profile path
         options = Options()
-        options.binary_location = "/usr/bin/firefox"  # Ensure correct Firefox path
+        options.binary_location = "/usr/bin/firefox"
+        options.add_argument("--profile=/home/nathan/snap/firefox/common/.mozilla/firefox/7y2p2lct.ai")
         service = Service("/usr/local/bin/geckodriver")
         driver = webdriver.Firefox(service=service, options=options)
         driver.get("https://web.whatsapp.com")
