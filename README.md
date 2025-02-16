@@ -32,9 +32,12 @@ pip install pyautogui frida r2pipe faiss-cpu psutil paramiko openai tiktoken pwn
 
 xhost +SI:localuser:$USER
 
-#To solve Ropper Error
+#To solve Possible Error
 
 pip install --force-reinstall capstone ropper
+
+pip install --force-reinstall python-dotenv
+
 
 #COMMAND TO RUN THE SCRIPT 
 
