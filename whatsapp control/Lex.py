@@ -105,7 +105,10 @@ class LexDMonkeyAI:
         options.set_capability("timeouts", {"implicit": 30, "pageLoad": 60, "script": 30})
         driver = webdriver.Firefox(service=service, options=options)
         
-        driver.get("https://web.whatsapp.com")
+        print("Opening WhatsApp Web...")
+driver.execute_script("window.location.href = 'https://web.whatsapp.com';")
+sleep(5)  # Give time for page to load
+print("Waiting for WhatsApp Web login...")
 print("Waiting for WhatsApp Web login...")
 
 # Wait until WhatsApp Web is fully loaded
