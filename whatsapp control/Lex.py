@@ -98,7 +98,7 @@ class LexDMonkeyAI:
 
     def listen_for_whatsapp_commands(self):
         profile_path = "/home/nathan/.mozilla/firefox/ai"  # Replace with actual profile path
-        profile_path = "/home/nathan/snap/firefox/common/.mozilla/firefox/7y2p2lct.ai"  # Replace with actual profile path
+        profile_path = "/home/nathan/snap/firefox/common/.mozilla/firefox/x2rpqcz2.default"  # Replace with actual profile path
         options = Options()
         options.binary_location = "/usr/bin/firefox"  # Ensure correct Firefox path
         service = Service("/usr/local/bin/geckodriver")
