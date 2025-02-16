@@ -22,6 +22,8 @@ sudo apt update && sudo apt install -y python3-scapy python3-dotenv python3-hach
 
 pip install --upgrade pip setuptools wheel
 
+pip install scapy
+
 pip install pyautogui frida r2pipe faiss-cpu psutil paramiko openai tiktoken pwntools ropper pexpect tensorflow keras numpy requests beautifulsoup4 shodan lief capstone unicorn crcmod SpeechRecognition pywhatkit edge-tts googlesearch-python newspaper3k transformers sentence-transformers scikit-learn adb-shell selenium
 
 #Allow GUI Access
