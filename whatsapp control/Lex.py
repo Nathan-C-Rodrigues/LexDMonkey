@@ -77,12 +77,12 @@ class LexDMonkeyAI:
         return number
     
     def system_root_access(self):
-    path = "/important/system/path"
-    if os.path.exists(path):
-        os.system(f"sudo chmod -R 755 {path}")  # Restricting system-wide changes
-        return "Lex D. Monkey has controlled system directories."
-    else:
-        return "System path does not exist, skipping chmod."
+        path = "/important/system/path"
+        if os.path.exists(path):
+           os.system(f"sudo chmod -R 755 {path}")  # Restricting system-wide changes
+           return "Lex D. Monkey has controlled system directories."
+        else:
+            return "System path does not exist, skipping chmod."
 
     
     def execute_system_command(self, command):
