@@ -101,7 +101,7 @@ class LexDMonkeyAI:
         options.binary_location = "/usr/bin/firefox"
         options.add_argument("--profile=/home/nathan/snap/firefox/common/.mozilla/firefox/7y2p2lct.ai")
         service = Service("/usr/local/bin/geckodriver")
-
+        
         options.set_capability("timeouts", {"implicit": 30, "pageLoad": 60, "script": 30})
         driver = webdriver.Firefox(service=service, options=options)
         
