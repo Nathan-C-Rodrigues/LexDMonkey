@@ -42,7 +42,6 @@ from selenium.webdriver.firefox.service import Service
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 class LexDMonkeyAI:
     def __init__(self):
@@ -103,11 +102,9 @@ class LexDMonkeyAI:
         options.add_argument("--profile=/home/nathan/snap/firefox/common/.mozilla/firefox/7y2p2lct.ai")
         service = Service("/usr/local/bin/geckodriver")
         
-        caps = DesiredCapabilities.FIREFOX.copy()
-        caps["timeouts"] = {"implicit": 30, "pageLoad": 60, "script": 30}  # Adding timeouts
-        
         options.set_capability("timeouts", {"implicit": 30, "pageLoad": 60, "script": 30})
-driver = webdriver.Firefox(service=service, options=options)
+        driver = webdriver.Firefox(service=service, options=options)
+        
         driver.get("https://web.whatsapp.com")
         input("Scan the QR code and press Enter...")
 
