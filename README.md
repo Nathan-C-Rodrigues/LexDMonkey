@@ -24,4 +24,5 @@ pip install pyautogui frida r2pipe faiss-cpu psutil paramiko openai tiktoken pwn
 
 
 #COMMAND TO RUN THE SCRIPT 
+
 DISPLAY=:0 python3 Lex.py
