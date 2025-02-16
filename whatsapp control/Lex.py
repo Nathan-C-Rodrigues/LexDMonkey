@@ -63,19 +63,19 @@ class LexDMonkeyAI:
         
         # Full System Control (Restricted to Safe Paths)
         self.system_root_access()
-    
+
     def ask_for_api_key(self, service_name, env_var):
         key = input(f"Enter your {service_name}: ")
         with open(".env", "a") as f:
             f.write(f"{env_var}={key}\n")
         return key
-    
+
     def ask_for_whatsapp_number(self):
         number = input("Enter your WhatsApp number with country code (e.g., +1234567890): ")
         with open(".env", "a") as f:
             f.write(f"WHATSAPP_NUMBER={number}\n")
         return number
-    
+
     def system_root_access(self):
         path = "/important/system/path"
         if os.path.exists(path):
@@ -83,19 +83,19 @@ class LexDMonkeyAI:
             return "Lex D. Monkey has controlled system directories."
         else:
             return "System path does not exist, skipping chmod."
-    
+
     def execute_system_command(self, command):
         try:
             result = os.popen(command).read()
             return result if result else "Command executed successfully."
         except Exception as e:
             return f"System command failed: {e}"
-    
+
     def call_user_whatsapp(self):
         url = f"https://web.whatsapp.com/send?phone={self.whatsapp_number}"
         webbrowser.open(url)
         return f"Opening WhatsApp Web to contact {self.whatsapp_number}."
-    
+
     def listen_for_whatsapp_commands(self):
         options = Options()
         options.binary_location = "/usr/bin/firefox"  # Ensure correct Firefox path
@@ -103,7 +103,7 @@ class LexDMonkeyAI:
         driver = webdriver.Firefox(service=service, options=options)
         driver.get("https://web.whatsapp.com")
         input("Scan the QR code and press Enter...")
-        
+
         while True:
             try:
                 chat = driver.find_element(By.XPATH, "//div[@class='_21Ahp']/div/span")
@@ -116,7 +116,7 @@ class LexDMonkeyAI:
             except Exception as e:
                 print(f"Error reading WhatsApp message: {e}")
             sleep(2)
-    
+
     def process_command(self, command):
         if "listen" in command:
             return self.listen_speech()
