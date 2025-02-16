@@ -9,6 +9,8 @@ source lex_env/bin/activate
 
 #Required System Packages
 
+sudo apt-get install python3-tk python3-dev
+
 sudo apt install -y python3 python3-pip python3-venv git curl wget \
     build-essential libssl-dev libffi-dev python3-dev \
     libpq-dev libxml2-dev libxslt1-dev libjpeg-dev zlib1g-dev \
