@@ -99,10 +99,12 @@ class LexDMonkeyAI:
         driver = webdriver.Firefox(service=service, options=options)
         driver.get("https://web.whatsapp.com")
         input("Scan the QR code and press Enter...")
+       
         while True:
             try:
                 chat = driver.find_element(By.XPATH, "//div[@class='_21Ahp']/div/span")
                 command = chat.text.lower()
+                command = chat.text.lower().strip()
                 if command:
                     response = self.process_command(command)
                     chat_box = driver.find_element(By.XPATH, "//div[@title='Type a message']")
