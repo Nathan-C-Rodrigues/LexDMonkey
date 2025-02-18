@@ -105,12 +105,15 @@ class LexDMonkeyAI:
     def level_up(self):
         self.level += 1
         self.experience = 0
-        print(f"Lex has leveled up! Now at level {self.level}. Gaining new abilities...")
-        self.unlock_ability()
+        new_ability = self.unlock_ability()
+        print(f"Lex has leveled up! Now at level {self.level}. Gaining new ability: {new_ability}")
+        self.learn_from_interaction(f"I have reached level {self.level} and unlocked {new_ability}.", f"Lex has evolved and gained {new_ability}.")
 
     def unlock_ability(self):
         abilities = ["Firmware Analysis", "Exploit Development", "Self-Healing System", "Advanced Automation", "AI Optimization"]
         new_ability = random.choice(abilities)
+        self.exploit_knowledge.append(new_ability)
+        return new_ability
         print(f"Lex has unlocked: {new_ability}!")
 
     def web_learn(self, topic):
@@ -150,6 +153,11 @@ class LexDMonkeyAI:
         elif "web learn" in command:
             topic = command.replace("web learn ", "")
             return self.web_learn(topic)
+        elif "upgrade" in command:
+            if self.level > 1:
+                return f"I have evolved! I am now at level {self.level} and have unlocked {', '.join(self.exploit_knowledge)}."
+            else:
+                return "I need more experience before I can upgrade!"
         elif "execute" in command:
             sys_command = command.replace("execute ", "")
             return self.execute_system_command(sys_command)
