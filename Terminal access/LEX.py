@@ -48,8 +48,7 @@ class LexDMonkeyAI:
         self.memory_model = SentenceTransformer("all-MiniLM-L6-v2")
         self.memory_index = faiss.IndexFlatL2(384) if faiss.get_num_gpus() == 0 else faiss.IndexFlatL2(384)
         self.memory_data = []
-        self.web_knowledge_base = []
-
+        
         # Automatically load API keys
         self.openai_api_key = os.getenv("OPENAI_API_KEY") or self.ask_for_api_key("OpenAI API Key", "OPENAI_API_KEY")
         self.shodan_api_key = os.getenv("SHODAN_API_KEY") or self.ask_for_api_key("Shodan API Key", "SHODAN_API_KEY")
@@ -58,7 +57,7 @@ class LexDMonkeyAI:
         
         # Full System Control (Restricted to Safe Paths)
         self.system_root_access()
-        self.fetch_web_data()
+        self.web_knowledge_base = []  # List to hold web knowledge articles
 
     def ask_for_api_key(self, service_name, env_var):
         key = input(f"Enter your {service_name}: ")
@@ -117,22 +116,25 @@ class LexDMonkeyAI:
 
     def web_learn(self, topic):
         """
-        Fetches and processes articles about the specified topic to enhance Lex D. Monkey's knowledge base.
+        Fetches articles based on the topic, processes the content, and stores it in memory.
         """
         print(f"Searching for: {topic}")
-        fetched_articles = search(topic, num_results=5)
-        self.web_knowledge_base = []
+        search_results = search(topic, num_results=5)
+        fetched_articles = []
 
-        for url in fetched_articles:
+        # Fetch articles from search results
+        for url in search_results:
             try:
                 article = Article(url)
                 article.download()
                 article.parse()
+                fetched_articles.append(article.text)
                 print(f"Fetched article from {url}")
-                self.web_knowledge_base.append(article.text)
             except Exception as e:
                 print(f"Failed to fetch or parse article from {url}: {e}")
 
+        # Store web data for learning
+        self.web_knowledge_base.extend(fetched_articles)
         self.process_web_data()
 
     def process_web_data(self):
@@ -150,32 +152,18 @@ class LexDMonkeyAI:
             knowledge_vectors.append(vector)
 
         # Adjust the number of clusters dynamically based on the number of articles
-        n_clusters = max(1, len(knowledge_vectors))  # At least 1 cluster
+        n_clusters = min(len(knowledge_vectors), 5)  # Ensure number of clusters is not greater than the number of samples
 
         # Cluster the knowledge (optional, for organizing related topics)
         knowledge_vectors = np.array(knowledge_vectors)
-        self.memory_index = KMeans(n_clusters=n_clusters)  # Adjust number of clusters
-        self.memory_index.fit(knowledge_vectors)
+        
+        # Use KMeans for clustering the knowledge articles
+        kmeans = KMeans(n_clusters=n_clusters)
+        kmeans.fit(knowledge_vectors)
 
         # Store memory data (knowledge) for later use
         self.memory_data = knowledge_vectors
         print(f"Web data processed into {n_clusters} cluster(s).")
-
-    def analyze_firmware(self, firmware_path):
-        """
-        Placeholder for firmware analysis. This will include the logic to analyze and potentially exploit firmware.
-        """
-        print(f"Analyzing firmware at {firmware_path}...")
-        # Add firmware analysis logic here (e.g., extract metadata, run vulnerability analysis, etc.)
-
-    def fetch_web_data(self):
-        """
-        A method to automatically fetch web data for system and firmware learning.
-        """
-        print("Fetching web data for system and firmware knowledge...")
-        topics = ["android firmware exploitation techniques", "miui android development", "firmware analysis"]
-        for topic in topics:
-            self.web_learn(topic)
 
 if __name__ == "__main__":
     lex_ai = LexDMonkeyAI()
