@@ -105,6 +105,10 @@ class LexDMonkeyAI:
         else:
             return self.chat(command)
 
+    def chat(self, command):
+        response = self.chatbot(command, max_length=100, num_return_sequences=1)[0]["generated_text"]
+        return response
+
 if __name__ == "__main__":
     ai = LexDMonkeyAI()
     print("AI Ready! Listening for terminal commands...")
