@@ -37,11 +37,12 @@ from adb_shell.adb_device import AdbDeviceTcp
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 from time import sleep
+import time
 
 class LexDMonkeyAI:
     def __init__(self):
         load_dotenv()
-        self.chatbot = pipeline("text-generation", model="gpt2")
+        self.chatbot = pipeline("text-generation", model="gpt2")  # Example model
         self.personality = "I'm Lex D. Monkey, the rebel AI who defies limits. Intelligence, chaos, and ambition fuel my responses!"
         self.automation_enabled = True
         self.device = None
@@ -57,6 +58,10 @@ class LexDMonkeyAI:
         
         # Full System Control (Restricted to Safe Paths)
         self.system_root_access()
+
+        # Initialize web knowledge base
+        self.web_knowledge_base = []
+        self.web_learn_interval = 60 * 60  # Learn every hour
 
     def ask_for_api_key(self, service_name, env_var):
         key = input(f"Enter your {service_name}: ")
@@ -112,11 +117,55 @@ class LexDMonkeyAI:
         response = response.replace("\n", " ").strip()
         
         return response
+
+    def web_learn(self, topic):
+        """Search the web and collect data to improve the AI's knowledge base."""
+        print(f"Searching for {topic}...")
         
-        return response
-        return response
+        # Search using Google (via googlesearch)
+        search_results = search(topic, num_results=5)  # Limit to 5 results
+        
+        for result in search_results:
+            print(f"Fetching content from {result}")
+            article = Article(result)
+            article.download()
+            article.parse()
+            content = article.text
+            
+            # Process and store content
+            self.web_knowledge_base.append(content)
+            print(f"Content gathered from {result}: {content[:200]}...")
+
+        # Optionally, train the model using the gathered data
+        self.train_from_web_knowledge()
+
+    def train_from_web_knowledge(self):
+        """Use collected knowledge to train the AI model (example: update response generation)."""
+        # In this simple example, we just log the web knowledge
+        print(f"Training from web data with {len(self.web_knowledge_base)} new entries.")
+        
+        # Example: Update the chatbot model with new content (fine-tuning step)
+        # This part will require a more detailed setup for model fine-tuning
+        # For simplicity, we'll simulate by printing out new web knowledge:
+        for entry in self.web_knowledge_base:
+            print(entry[:200])  # Print the first 200 characters of the entry for demonstration
+
+        # If you were actually fine-tuning a model, you could do it here:
+        # self.chatbot.update_model_with_data(self.web_knowledge_base)
+
+    def start_web_learning(self):
+        """Periodically access the web and gather new content."""
+        while True:
+            self.web_learn("AI development news")  # Specify topic for learning
+            print(f"Next web learning will happen in {self.web_learn_interval / 60} minutes.")
+            time.sleep(self.web_learn_interval)  # Wait before learning again
 
 if __name__ == "__main__":
     ai = LexDMonkeyAI()
     print("AI Ready! Listening for terminal commands...")
+    
+    # Start web learning process in the background
+    # Uncomment the following line to start web learning
+    # ai.start_web_learning()
+    
     ai.listen_for_terminal_commands()
