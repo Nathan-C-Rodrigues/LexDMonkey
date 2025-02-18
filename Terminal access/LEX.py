@@ -90,12 +90,12 @@ class LexDMonkeyAI:
         self.memory_data.append((input_text, response_text))
         self.knowledge_base[input_text] = response_text
         self.gain_experience(10)  # Gain experience for learning
-        return "Learning completed."
+        return f"Lex has learned: {input_text}"
 
     def recall_memory(self, query):
         if query in self.knowledge_base:
-            return self.knowledge_base[query]
-        return "No prior knowledge on this topic."
+            return f"I remember this: {self.knowledge_base[query]}"
+        return "I don't recall that yet."
 
     def gain_experience(self, amount):
         self.experience += amount
@@ -112,6 +112,21 @@ class LexDMonkeyAI:
         abilities = ["Firmware Analysis", "Exploit Development", "Self-Healing System", "Advanced Automation", "AI Optimization"]
         new_ability = random.choice(abilities)
         print(f"Lex has unlocked: {new_ability}!")
+
+    def web_learn(self, topic):
+        try:
+            search_results = list(search(topic, num_results=3))
+            knowledge = ""
+            for url in search_results:
+                article = Article(url)
+                article.download()
+                article.parse()
+                knowledge += article.text[:500] + "..."  # Save first 500 characters
+            
+            self.learn_from_interaction(topic, knowledge)
+            return f"Lex has learned about {topic} from the web."
+        except Exception as e:
+            return f"Failed to learn from the web: {e}"
 
     def listen_for_terminal_commands(self):
         print("Listening for terminal commands...")
@@ -132,6 +147,9 @@ class LexDMonkeyAI:
         elif "recall" in command:
             topic = command.replace("recall ", "")
             return self.recall_memory(topic)
+        elif "web learn" in command:
+            topic = command.replace("web learn ", "")
+            return self.web_learn(topic)
         elif "execute" in command:
             sys_command = command.replace("execute ", "")
             return self.execute_system_command(sys_command)
