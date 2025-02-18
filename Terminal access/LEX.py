@@ -106,7 +106,13 @@ class LexDMonkeyAI:
             return self.chat(command)
 
     def chat(self, command):
-        response = self.chatbot(command, max_length=100, num_return_sequences=1)[0]["generated_text"]
+        response = self.chatbot(command, max_length=100, num_return_sequences=1, truncation=True, pad_token_id=50256)[0]["generated_text"]
+        
+        # Remove unnecessary line breaks and format output
+        response = response.replace("
+", " ").strip()
+        
+        return response
         return response
 
 if __name__ == "__main__":
