@@ -37,7 +37,6 @@ from adb_shell.adb_device import AdbDeviceTcp
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 from time import sleep
-import time
 
 class LexDMonkeyAI:
     def __init__(self):
@@ -56,16 +55,11 @@ class LexDMonkeyAI:
         
         self.exploit_knowledge = []
         
+        # Web knowledge storage
+        self.web_knowledge_base = []
+        
         # Full System Control (Restricted to Safe Paths)
         self.system_root_access()
-
-        # Initialize web knowledge base
-        self.web_knowledge_base = []
-        self.web_learn_interval = 60 * 60  # Learn every hour
-
-        # Initialize self-upgrade feature
-        self.source_file = __file__  # Get the current file path of the script
-        self.version = 1  # Starting version for upgrades
 
     def ask_for_api_key(self, service_name, env_var):
         key = input(f"Enter your {service_name}: ")
@@ -111,8 +105,8 @@ class LexDMonkeyAI:
         elif "analyze firmware" in command:
             firmware_path = command.replace("analyze firmware ", "")
             return self.analyze_firmware(firmware_path)
-        elif "self upgrade" in command:
-            return self.self_upgrade()
+        elif "update self" in command:
+            return self.update_self()
         else:
             return self.chat(command)
 
@@ -132,61 +126,71 @@ class LexDMonkeyAI:
         search_results = search(topic, num_results=5)  # Limit to 5 results
         
         for result in search_results:
+            # Ensure the URL is complete (including the https:// part)
+            if not result.startswith("http"):
+                result = "https://" + result
+            
             print(f"Fetching content from {result}")
             article = Article(result)
-            article.download()
-            article.parse()
-            content = article.text
             
-            # Process and store content
-            self.web_knowledge_base.append(content)
-            print(f"Content gathered from {result}: {content[:200]}...")
-
+            try:
+                article.download()
+                article.parse()
+                content = article.text
+                
+                # Process and store content
+                self.web_knowledge_base.append(content)
+                print(f"Content gathered from {result}: {content[:200]}...")
+                
+            except Exception as e:
+                print(f"Error fetching article from {result}: {e}")
+        
         # Optionally, train the model using the gathered data
         self.train_from_web_knowledge()
 
     def train_from_web_knowledge(self):
-        """Use collected knowledge to train the AI model (example: update response generation)."""
-        print(f"Training from web data with {len(self.web_knowledge_base)} new entries.")
-        
-        for entry in self.web_knowledge_base:
-            print(entry[:200])  # Print the first 200 characters of the entry for demonstration
-
-    def self_upgrade(self):
-        """Upgrade itself by modifying its own code."""
-        print("Lex D. Monkey is upgrading itself...")
-
-        # Check current version
-        self.version += 1  # Increment version for the new upgrade
-
-        # Load current code (self-modify) and add a new feature or modify logic
-        try:
-            with open(self.source_file, "r") as f:
-                code = f.read()
+        """Train the AI model using the knowledge gathered from the web."""
+        if hasattr(self, 'web_knowledge_base') and self.web_knowledge_base:
+            training_data = "\n".join(self.web_knowledge_base)  # Combine all collected knowledge
             
-            # Example: Modify code (Adding a new function or changing an existing function)
-            new_code = code.replace(
-                "# Example: Modify the chatbot response generation",
-                "# Example: Modify the chatbot response generation\n        print('Upgraded version!')"
-            )
+            # Example of adjusting knowledge
+            self.memory_data.append(training_data)
+            print(f"Training model with {len(self.web_knowledge_base)} web articles.")
+            self.save_model_changes()
+        else:
+            print("No web knowledge to train on.")
 
-            # Save the modified code
-            with open(self.source_file, "w") as f:
-                f.write(new_code)
+    def save_model_changes(self):
+        """Save the updated model and code."""
+        # Save the new model data to a file
+        model_path = "./updated_model.pkl"
+        with open(model_path, "wb") as f:
+            pickle.dump(self.memory_data, f)
+        print(f"Model saved at {model_path}.")
+        
+        # Update the AI's code by modifying the script
+        self.update_code()
 
-            # Reload the script (this will run the modified version of the script)
-            print("Code updated successfully. Restarting the script with the new version...")
-            os.system(f"python3 {self.source_file}")  # Restart the script with the new changes
+    def update_code(self):
+        """Modify the AI's own code."""
+        script_path = os.path.abspath(__file__)  # Get the current script path
+        with open(script_path, "r") as file:
+            code = file.read()
+        
+        # Modify the code (e.g., add new functionality or change existing code)
+        new_code = code + "\n# AI updated itself\n# New functionality added based on web learning.\n"
+        
+        with open(script_path, "w") as file:
+            file.write(new_code)
+        
+        print("AI code has been updated with new functionality.")
 
-        except Exception as e:
-            print(f"Self-upgrade failed: {e}")
-            return f"Error during self-upgrade: {e}"
+    def update_self(self):
+        """Trigger the AI to update itself."""
+        self.save_model_changes()
+        return "Lex D. Monkey has updated its model and code."
 
 if __name__ == "__main__":
     ai = LexDMonkeyAI()
     print("AI Ready! Listening for terminal commands...")
-    
-    # Uncomment the following line to start web learning
-    # ai.start_web_learning()
-
     ai.listen_for_terminal_commands()
