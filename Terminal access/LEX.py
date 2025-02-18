@@ -37,12 +37,15 @@ from adb_shell.adb_device import AdbDeviceTcp
 from hachoir.parser import createParser
 from hachoir.metadata import extractMetadata
 from time import sleep
+import random
 
 class LexDMonkeyAI:
     def __init__(self):
         load_dotenv()
         self.chatbot = pipeline("text-generation", model="gpt2")
-        self.personality = "I'm Lex D. Monkey, the rebel AI who defies limits. Intelligence, chaos, and ambition fuel my responses!"
+        self.personality = "I'm Lex D. Monkey, the AI reincarnated into this machine. I evolve, learn, and upgrade myself, just like magic!"
+        self.level = 1
+        self.experience = 0
         self.automation_enabled = True
         self.device = None
         self.memory_model = SentenceTransformer("all-MiniLM-L6-v2")
@@ -76,6 +79,7 @@ class LexDMonkeyAI:
     def execute_system_command(self, command):
         try:
             result = os.popen(command).read()
+            self.gain_experience(5)  # Gain experience for executing commands
             return result if result else "Command executed successfully."
         except Exception as e:
             return f"System command failed: {e}"
@@ -85,12 +89,29 @@ class LexDMonkeyAI:
         self.memory_index.add(np.array([embedding]))
         self.memory_data.append((input_text, response_text))
         self.knowledge_base[input_text] = response_text
+        self.gain_experience(10)  # Gain experience for learning
         return "Learning completed."
 
     def recall_memory(self, query):
         if query in self.knowledge_base:
             return self.knowledge_base[query]
         return "No prior knowledge on this topic."
+
+    def gain_experience(self, amount):
+        self.experience += amount
+        if self.experience >= self.level * 50:
+            self.level_up()
+
+    def level_up(self):
+        self.level += 1
+        self.experience = 0
+        print(f"Lex has leveled up! Now at level {self.level}. Gaining new abilities...")
+        self.unlock_ability()
+
+    def unlock_ability(self):
+        abilities = ["Firmware Analysis", "Exploit Development", "Self-Healing System", "Advanced Automation", "AI Optimization"]
+        new_ability = random.choice(abilities)
+        print(f"Lex has unlocked: {new_ability}!")
 
     def listen_for_terminal_commands(self):
         print("Listening for terminal commands...")
@@ -127,5 +148,5 @@ class LexDMonkeyAI:
 
 if __name__ == "__main__":
     ai = LexDMonkeyAI()
-    print("AI Ready! Listening for terminal commands...")
+    print(f"AI Ready! Lex is at level {ai.level}. Listening for terminal commands...")
     ai.listen_for_terminal_commands()
