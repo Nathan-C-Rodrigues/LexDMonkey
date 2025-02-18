@@ -42,7 +42,7 @@ import time
 class LexDMonkeyAI:
     def __init__(self):
         load_dotenv()
-        self.chatbot = pipeline("text-generation", model="gpt2")  # Example model
+        self.chatbot = pipeline("text-generation", model="gpt2")
         self.personality = "I'm Lex D. Monkey, the rebel AI who defies limits. Intelligence, chaos, and ambition fuel my responses!"
         self.automation_enabled = True
         self.device = None
@@ -62,6 +62,10 @@ class LexDMonkeyAI:
         # Initialize web knowledge base
         self.web_knowledge_base = []
         self.web_learn_interval = 60 * 60  # Learn every hour
+
+        # Initialize self-upgrade feature
+        self.source_file = __file__  # Get the current file path of the script
+        self.version = 1  # Starting version for upgrades
 
     def ask_for_api_key(self, service_name, env_var):
         key = input(f"Enter your {service_name}: ")
@@ -107,6 +111,8 @@ class LexDMonkeyAI:
         elif "analyze firmware" in command:
             firmware_path = command.replace("analyze firmware ", "")
             return self.analyze_firmware(firmware_path)
+        elif "self upgrade" in command:
+            return self.self_upgrade()
         else:
             return self.chat(command)
 
@@ -141,31 +147,46 @@ class LexDMonkeyAI:
 
     def train_from_web_knowledge(self):
         """Use collected knowledge to train the AI model (example: update response generation)."""
-        # In this simple example, we just log the web knowledge
         print(f"Training from web data with {len(self.web_knowledge_base)} new entries.")
         
-        # Example: Update the chatbot model with new content (fine-tuning step)
-        # This part will require a more detailed setup for model fine-tuning
-        # For simplicity, we'll simulate by printing out new web knowledge:
         for entry in self.web_knowledge_base:
             print(entry[:200])  # Print the first 200 characters of the entry for demonstration
 
-        # If you were actually fine-tuning a model, you could do it here:
-        # self.chatbot.update_model_with_data(self.web_knowledge_base)
+    def self_upgrade(self):
+        """Upgrade itself by modifying its own code."""
+        print("Lex D. Monkey is upgrading itself...")
 
-    def start_web_learning(self):
-        """Periodically access the web and gather new content."""
-        while True:
-            self.web_learn("AI development news")  # Specify topic for learning
-            print(f"Next web learning will happen in {self.web_learn_interval / 60} minutes.")
-            time.sleep(self.web_learn_interval)  # Wait before learning again
+        # Check current version
+        self.version += 1  # Increment version for the new upgrade
+
+        # Load current code (self-modify) and add a new feature or modify logic
+        try:
+            with open(self.source_file, "r") as f:
+                code = f.read()
+            
+            # Example: Modify code (Adding a new function or changing an existing function)
+            new_code = code.replace(
+                "# Example: Modify the chatbot response generation",
+                "# Example: Modify the chatbot response generation\n        print('Upgraded version!')"
+            )
+
+            # Save the modified code
+            with open(self.source_file, "w") as f:
+                f.write(new_code)
+
+            # Reload the script (this will run the modified version of the script)
+            print("Code updated successfully. Restarting the script with the new version...")
+            os.system(f"python3 {self.source_file}")  # Restart the script with the new changes
+
+        except Exception as e:
+            print(f"Self-upgrade failed: {e}")
+            return f"Error during self-upgrade: {e}"
 
 if __name__ == "__main__":
     ai = LexDMonkeyAI()
     print("AI Ready! Listening for terminal commands...")
     
-    # Start web learning process in the background
     # Uncomment the following line to start web learning
     # ai.start_web_learning()
-    
+
     ai.listen_for_terminal_commands()
