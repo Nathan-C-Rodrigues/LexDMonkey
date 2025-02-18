@@ -113,6 +113,8 @@ class LexDMonkeyAI:
 ", " ").strip()
         
         return response
+        
+        return response
         return response
 
 if __name__ == "__main__":
