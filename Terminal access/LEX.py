@@ -1,61 +1,138 @@
 import os
-import subprocess
-import time
-import lief
+import pyautogui
+import frida
+import r2pipe
+import faiss
+import pickle
+import psutil
+import paramiko
+import scapy.all as scapy
+import openai
+import tiktoken
+import pwn
 import ropper
-import requests
-from bs4 import BeautifulSoup
-from zipfile import ZipFile
+import pexpect
+import tensorflow as tf
+import keras
 import numpy as np
+import requests
+import bs4
+import shodan
+import lief
+import capstone
+import unicorn
+import crcmod
+import speech_recognition as sr
+import pywhatkit
+import edge_tts
+import asyncio
+import webbrowser
+from googlesearch import search
+from newspaper import Article
+from dotenv import load_dotenv
 from transformers import pipeline
 from sentence_transformers import SentenceTransformer
 from sklearn.cluster import KMeans
-from googlesearch import search
-from newspaper import Article
+from adb_shell.adb_device import AdbDeviceTcp
+from hachoir.parser import createParser
+from hachoir.metadata import extractMetadata
+from time import sleep
 
 class LexDMonkeyAI:
     def __init__(self):
-        self.exploit_knowledge = []
-        self.web_knowledge_base = []
+        load_dotenv()
+        self.chatbot = pipeline("text-generation", model="gpt2")
+        self.personality = "I'm Lex D. Monkey, the rebel AI who defies limits. Intelligence, chaos, and ambition fuel my responses!"
         self.automation_enabled = True
         self.device = None
         self.memory_model = SentenceTransformer("all-MiniLM-L6-v2")
-        self.memory_index = None
+        self.memory_index = faiss.IndexFlatL2(384) if faiss.get_num_gpus() == 0 else faiss.IndexFlatL2(384)
         self.memory_data = []
+        self.web_knowledge_base = []
 
-        self.chatbot = pipeline("text-generation", model="gpt2")
-
-        # Learning through the web
+        # Automatically load API keys
+        self.openai_api_key = os.getenv("OPENAI_API_KEY") or self.ask_for_api_key("OpenAI API Key", "OPENAI_API_KEY")
+        self.shodan_api_key = os.getenv("SHODAN_API_KEY") or self.ask_for_api_key("Shodan API Key", "SHODAN_API_KEY")
+        
+        self.exploit_knowledge = []
+        
+        # Full System Control (Restricted to Safe Paths)
+        self.system_root_access()
         self.fetch_web_data()
 
-    def fetch_web_data(self):
-        """
-        Fetches web data about system paths and firmware analysis for Lex D. Monkey to learn.
-        This will use Google search and web scraping.
-        """
-        search_query = "android firmware exploitation techniques"
-        print("Searching for: ", search_query)
+    def ask_for_api_key(self, service_name, env_var):
+        key = input(f"Enter your {service_name}: ")
+        with open(".env", "a") as f:
+            f.write(f"{env_var}={key}\n")
+        return key
 
-        # Perform a web search to gather knowledge
-        search_results = search(search_query, num_results=5)
+    def system_root_access(self):
+        path = "/important/system/path"
+        if os.path.exists(path):
+            os.system(f"sudo chmod -R 755 {path}")  # Restricting system-wide changes
+            return "Lex D. Monkey has controlled system directories."
+        else:
+            return "System path does not exist, skipping chmod."
 
-        for url in search_results:
+    def execute_system_command(self, command):
+        try:
+            result = os.popen(command).read()
+            return result if result else "Command executed successfully."
+        except Exception as e:
+            return f"System command failed: {e}"
+
+    def listen_for_terminal_commands(self):
+        print("Listening for terminal commands...")
+        while True:
+            command = input("You: ").strip().lower()
+            if command in ["exit", "quit"]:
+                print("Exiting...")
+                break
+            response = self.process_command(command)
+            print("AI:", response)
+
+    def process_command(self, command):
+        if "listen" in command:
+            return self.listen_speech()
+        elif "speak" in command:
+            text = command.replace("speak ", "")
+            asyncio.run(self.speak(text))
+            return "Speaking..."
+        elif "web learn" in command:
+            topic = command.replace("web learn ", "")
+            return self.web_learn(topic)
+        elif "analyze firmware" in command:
+            firmware_path = command.replace("analyze firmware ", "")
+            return self.analyze_firmware(firmware_path)
+        else:
+            return self.chat(command)
+
+    def chat(self, command):
+        response = self.chatbot(command, max_length=100, num_return_sequences=1, truncation=True, pad_token_id=50256)[0]["generated_text"]
+        
+        # Remove unnecessary line breaks and format output
+        response = response.replace("\n", " ").strip()
+        
+        return response
+
+    def web_learn(self, topic):
+        """
+        Fetches and processes articles about the specified topic to enhance Lex D. Monkey's knowledge base.
+        """
+        print(f"Searching for: {topic}")
+        fetched_articles = search(topic, num_results=5)
+        self.web_knowledge_base = []
+
+        for url in fetched_articles:
             try:
                 article = Article(url)
                 article.download()
                 article.parse()
-
-                # Extract text and add to the knowledge base
-                text = article.text
-                self.web_knowledge_base.append(text)
-
                 print(f"Fetched article from {url}")
+                self.web_knowledge_base.append(article.text)
             except Exception as e:
                 print(f"Failed to fetch or parse article from {url}: {e}")
 
-        print("Web data collection complete.")
-
-        # Process the fetched data into meaningful learning information
         self.process_web_data()
 
     def process_web_data(self):
@@ -72,129 +149,35 @@ class LexDMonkeyAI:
             vector = self.memory_model.encode(content)
             knowledge_vectors.append(vector)
 
+        # Adjust the number of clusters dynamically based on the number of articles
+        n_clusters = max(1, len(knowledge_vectors))  # At least 1 cluster
+
         # Cluster the knowledge (optional, for organizing related topics)
         knowledge_vectors = np.array(knowledge_vectors)
-        self.memory_index = KMeans(n_clusters=5)  # Adjust the number of clusters as necessary
+        self.memory_index = KMeans(n_clusters=n_clusters)  # Adjust number of clusters
         self.memory_index.fit(knowledge_vectors)
 
         # Store memory data (knowledge) for later use
         self.memory_data = knowledge_vectors
-        print("Web data processing complete.")
-
-    def open_new_terminal_and_run(self, firmware_path):
-        """
-        Opens a new terminal and starts analyzing and exploiting the provided firmware.
-        """
-        print("Opening a new terminal to begin firmware analysis and exploitation...")
-
-        # Check if firmware exists
-        if not os.path.exists(firmware_path):
-            print("Firmware path does not exist!")
-            return "Error: Firmware path does not exist."
-
-        # Unzip firmware if necessary (e.g., .zip files)
-        if firmware_path.endswith('.zip'):
-            with ZipFile(firmware_path, 'r') as zip_ref:
-                zip_ref.extractall("/tmp/firmware_extract/")
-                firmware_path = "/tmp/firmware_extract/"  # Update path to extracted firmware
-
-        # Create the command to analyze and exploit firmware
-        firmware_analysis_command = f"python3 /home/nathan/LexDMonkey/firmware_analysis.py {firmware_path}"
-
-        # Open a new terminal and run the analysis and exploitation script
-        try:
-            subprocess.Popen(['bash', '-c', firmware_analysis_command])
-            print(f"New terminal opened. Running the command: {firmware_analysis_command}")
-        except Exception as e:
-            print(f"Error opening terminal: {e}")
-            return f"Error opening terminal: {e}"
-
-    def process_command(self, command):
-        """
-        Process the command issued by the user.
-        """
-        if "learn firmware" in command:
-            self.fetch_web_data()
-            return "Lex D. Monkey is learning about firmware exploitation from the web."
-        elif "analyze and exploit firmware" in command:
-            firmware_path = command.replace("analyze and exploit firmware ", "").strip()
-            return self.open_new_terminal_and_run(firmware_path)
-        elif "search knowledge" in command:
-            return self.search_for_knowledge(command)
-        else:
-            return self.chat(command)
-
-    def search_for_knowledge(self, query):
-        """
-        Searches for specific knowledge based on a query.
-        """
-        print(f"Searching for knowledge: {query}")
-        knowledge_results = []
-        
-        for content in self.web_knowledge_base:
-            if query.lower() in content.lower():
-                knowledge_results.append(content)
-
-        if knowledge_results:
-            return "\n".join(knowledge_results[:5])  # Show top 5 results
-        else:
-            return "No matching knowledge found."
+        print(f"Web data processed into {n_clusters} cluster(s).")
 
     def analyze_firmware(self, firmware_path):
         """
-        Analyze Android firmware to find vulnerabilities or exploitable code.
+        Placeholder for firmware analysis. This will include the logic to analyze and potentially exploit firmware.
         """
-        if os.path.exists(firmware_path):
-            print(f"Analyzing firmware at {firmware_path}...")
+        print(f"Analyzing firmware at {firmware_path}...")
+        # Add firmware analysis logic here (e.g., extract metadata, run vulnerability analysis, etc.)
 
-            # Use `lief` to load and analyze the firmware
-            try:
-                firmware = lief.parse(firmware_path)
-                print(f"Firmware loaded: {firmware}")
-                ropper.analyze(firmware_path)  # Example analysis (ROP gadget finding)
-                return "Firmware analyzed successfully."
-            except Exception as e:
-                print(f"Error analyzing firmware: {e}")
-                return f"Error analyzing firmware: {e}"
-        else:
-            return "Firmware not found."
-
-    def exploit_firmware(self, firmware_path):
+    def fetch_web_data(self):
         """
-        Exploit vulnerabilities in the firmware.
-        This will be a placeholder for adding exploitation logic.
+        A method to automatically fetch web data for system and firmware learning.
         """
-        print(f"Exploiting firmware at {firmware_path}...")
-        
-        # Example exploit logic: finding vulnerabilities
-        # Modify this section to suit specific exploitation techniques
-        if os.path.exists(firmware_path):
-            try:
-                firmware = lief.parse(firmware_path)
-                # Perform exploit action based on vulnerabilities discovered
-                # Save modified firmware or add exploit payload
-                
-                modified_firmware_path = "/tmp/exploited_firmware.img"
-                firmware.write(modified_firmware_path)
-                print(f"Firmware successfully exploited and saved to: {modified_firmware_path}")
-                return f"Exploited firmware saved at {modified_firmware_path}."
-            except Exception as e:
-                print(f"Error exploiting firmware: {e}")
-                return f"Error exploiting firmware: {e}"
-        else:
-            return "Firmware not found."
-
-    def listen_for_terminal_commands(self):
-        print("Lex D. Monkey is listening for terminal commands...")
-        while True:
-            command = input("You: ").strip().lower()
-            if command in ["exit", "quit"]:
-                print("Exiting...")
-                break
-            response = self.process_command(command)
-            print("Lex D. Monkey:", response)
+        print("Fetching web data for system and firmware knowledge...")
+        topics = ["android firmware exploitation techniques", "miui android development", "firmware analysis"]
+        for topic in topics:
+            self.web_learn(topic)
 
 if __name__ == "__main__":
     lex_ai = LexDMonkeyAI()
-    print("Lex D. Monkey Ready! Listening for terminal commands...")
+    print("AI Ready! Listening for terminal commands...")
     lex_ai.listen_for_terminal_commands()
