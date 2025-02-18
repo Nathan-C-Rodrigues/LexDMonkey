@@ -109,8 +109,7 @@ class LexDMonkeyAI:
         response = self.chatbot(command, max_length=100, num_return_sequences=1, truncation=True, pad_token_id=50256)[0]["generated_text"]
         
         # Remove unnecessary line breaks and format output
-        response = response.replace("
-", " ").strip()
+        response = response.replace("\n", " ").strip()
         
         return response
         
