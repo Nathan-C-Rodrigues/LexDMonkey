@@ -1,14 +1,1 @@
-export BUILD_TARGET=dm1q_eur_openx
-export MODEL=$(echo ${BUILD_TARGET} | cut -d'_' -f1)
-export PROJECT_NAME=${MODEL}
-export REGION=$(echo ${BUILD_TARGET} | cut -d'_' -f2)
-export CARRIER=$(echo ${BUILD_TARGET} | cut -d'_' -f3)
-export TARGET_BUILD_VARIANT=user
-
-export CHIPSET_NAME=kalama
-export ANDROID_BUILD_TOP=$(pwd)
-export TARGET_PRODUCT=gki
-export TARGET_BOARD_PLATFORM=gki
-
-export ANDROID_PRODUCT_OUT=${ANDROID_BUILD_TOP}/out/target/product/${MODEL}
-export OUT_DIR=${ANDROID_BUILD_TOP}/out/msm-kernel-${CHIPSET_NAME}-${TARGET_PRODUCT}
+RECOMPILE_KERNEL=1 ./kernel_platform/build/android/prepare_vendor.sh sec ${TARGET_PRODUCT}
